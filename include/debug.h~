@@ -1,0 +1,20 @@
+/* 
+ * File:   debug.h
+ * Author: Sourabh Bhat
+ *
+ * Created on 3 February, 2017, 5:47 PM
+ */
+
+#ifndef DEBUG_H
+#define DEBUG_H
+
+
+
+#include "data.h"
+
+    void printPrimitiveVariables(Cell cell, int rkStep);
+    void printArray(double array[], int size);
+
+
+#endif /* DEBUG_H */
+

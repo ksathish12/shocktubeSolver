@@ -1,0 +1,109 @@
+#ifndef FLUXCALCULATOR_H
+#define	FLUXCALCULATOR_H
+#include "config.h"
+#include "GoverningEquations.h"
+#include "data.h"
+//#include "debug.h"
+#define GAMMA 1.4
+void calc_flux(double UL[], double UR[], double* flux)
+{
+	double FL[NUM_VARS];
+    	double FR[NUM_VARS];
+    	ausm_flux(UL, FL);
+    	ausm_flux(UR, FR);
+
+	double a[NUM_CELLS],M_h,P_p[NUM_CELLS],P_n[NUM_CELLS],M_p[NUM_CELLS],M_n[NUM_CELLS],M;
+	for(int i=0;i<NUM_CELLS;i++)
+	{
+		a[i]=sqrt(gamma*P[i]/rho[i]);
+		M=u[i]/a[i];
+		if ((M<=1)&&(M>=(-1)))
+		{
+			M_p[i]=(M+1)*(M+1)/4;
+			M_n[i]=(M-1)*(1-M)/4;
+			P_p[i]=P[i]*(1+M)*(1+M)*(2-M)/4;
+			P_n[i]=P[i]*(M-1)*(M-1)*(2+M)/4;
+		}
+		else if (M>1)
+		{
+			M_p[i]=M;
+			M_n[i]=0;
+			P_p[i]=P[i];
+			P_n[i]=0;
+		}
+		else
+		{
+			M_p[i]=0;
+			M_n[i]=M;
+			P_p[i]=0;
+			P_n[i]=P[i];
+		}
+
+	}
+	for (int i=0;i<(NUM_CELLS-1);i++)
+	{
+		M_h=M_p[i]+M_n[i+1];
+		if (M_h>0)
+		{
+			flux[i][0]=M_h*rho[i]*a[i];
+			flux[i][1]=rho[i]*M_h*a[i]*u[i]+P_p[i]+P_n[i+1];
+			flux[i][2]=M_h*a[i]*rho[i]*(e[i]+P[i]/rho[i]);
+		}
+		else
+		{
+			flux[i][0]=M_h*rho[i+1]*a[i+1];
+			flux[i][1]=rho[i+1]*M_h*a[i+1]*u[i+1]+P_p[i+1]+P_n[i];
+			flux[i][2]=M_h*a[i+1]*rho[i+1]*(e[i+1]+P[i+1]/rho[i+1]);
+		}
+		//cout<<flux[i][1]<<"\n";
+	}
+
+	int var;
+    	for (var = 0; var < NUM_VARS; var++) 
+    	{
+		M_h=M_p[i]+M_n[i+1];
+		flux[var] = M_h*
+        	flux[var] = 0.5 * (FL[var] + FR[var]) - 0.5 * maxWaveSpeed * (UR[var] - UL[var]);
+   	}
+}
+void laxFriedrichRiemannSolver(double UL[], double UR[], double* flux) 
+{
+    double FL[NUM_VARS];
+    double FR[NUM_VARS];
+    F(UL, FL);
+    F(UR, FR);
+    double maxWaveSpeed = fmax(getMaxAbsEigenValue(UL), getMaxAbsEigenValue(UR));
+    int var;
+    for (var = 0; var < NUM_VARS; var++) 
+    {
+        flux[var] = 0.5 * (FL[var] + FR[var]) - 0.5 * maxWaveSpeed * (UR[var] - UL[var]);
+    }
+}
+void calculateFlux(Cell cells[], int rkStep) 
+{
+    int i;
+    for (i = 0; i < NUM_CELLS + 2 * NUM_GHOST_CELLS; i++) 
+    {
+        int var;
+        for (var = 0; var < NUM_VARS; var++) 
+        {
+            cells[i].totalFlux[var] = 0.0;
+        }
+    }
+    double flux[NUM_VARS];
+    int cellInterface;
+    for (cellInterface = NUM_GHOST_CELLS; cellInterface < NUM_CELLS + NUM_GHOST_CELLS + 1; cellInterface++) 
+    {
+        double* UL = cells[cellInterface - 1].UEast;
+        double* UR = cells[cellInterface].UWest;
+        laxFriedrichRiemannSolver(UL, UR, flux);
+        int var;
+        for (var = 0; var < NUM_VARS; var++) 
+        {
+            cells[cellInterface - 1].totalFlux[var] += flux[var];
+            cells[cellInterface].totalFlux[var] -= flux[var];
+        }
+    }
+}
+#endif	/* FLUXCALCULATOR_H */
+

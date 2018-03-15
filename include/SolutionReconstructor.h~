@@ -1,0 +1,20 @@
+/* 
+ * File:   SolutionReconstructor.h
+ * Author: Sourabh Bhat
+ *
+ * Created on 3 February, 2017, 1:26 PM
+ */
+
+#ifndef SOLUTIONRECONSTRUCTOR_H
+#define	SOLUTIONRECONSTRUCTOR_H
+
+
+#include "data.h"
+
+    void reconstructSolution(Cell cells[], int rkStep);
+
+
+
+
+#endif	/* SOLUTIONRECONSTRUCTOR_H */
+

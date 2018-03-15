@@ -1,0 +1,19 @@
+/* 
+ * File:   SetupCellGeometryData.h
+ * Author: Sourabh Bhat
+ *
+ * Created on 2 February, 2017, 2:47 PM
+ */
+
+#ifndef SETUPCELLGEOMETRYDATA_H
+#define	SETUPCELLGEOMETRYDATA_H
+
+
+    
+#include "data.h"
+    
+    void setUpGeometry(Cell cells[]);
+
+
+#endif	/* SETUPCELLGEOMETRYDATA_H */
+
